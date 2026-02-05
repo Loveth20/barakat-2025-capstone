@@ -17,14 +17,14 @@
   "dev_access_key": {
     "sensitive": false,
     "type": "string",
-    "value": "YOUR_ACCESS_KEY_HERE"
-}
-"dev_secret_key": {
+    "value": "AKIAYWBJYFSV2F4MHZI2"
+  },
+  "dev_secret_key": {
     "sensitive": true,
     "type": "string",
-    "value": "YOUR_SECRET_KEY_HERE"
-}
-"region": {
+    "value": "w71PY9t4EkpOxs3H6iwW5p2m+z3MxJ2D5tO3G4sa"
+  },
+  "region": {
     "sensitive": false,
     "type": "string",
     "value": "us-east-1"

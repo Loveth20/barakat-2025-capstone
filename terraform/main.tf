@@ -30,7 +30,7 @@ resource "aws_vpc" "main" {
   }
 }
 # --- Section 4.4: CloudWatch Observability Add-on ---
-  resource "aws_subnet" "subnet_a" {
+resource "aws_subnet" "subnet_a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "us-east-1a"
@@ -103,7 +103,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 # --- EKS Cluster ---
 resource "aws_eks_cluster" "main" {
   name     = "project-bedrock-cluster"
-  version  = "1.31" 
+  version  = "1.31"
   role_arn = aws_iam_role.eks_cluster.arn
 
   # Section 4.4: Control Plane Logging
@@ -114,7 +114,7 @@ resource "aws_eks_cluster" "main" {
   }
 
   access_config {
-    authentication_mode = "API_AND_CONFIG_MAP"
+    authentication_mode                         = "API_AND_CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
   }
 
@@ -151,9 +151,9 @@ resource "aws_iam_access_key" "dev" {
 
 # --- EKS RBAC Access (Access Entries) ---
 resource "aws_eks_access_entry" "dev_user" {
-  cluster_name      = aws_eks_cluster.main.name
-  principal_arn     = aws_iam_user.dev.arn
-  type              = "STANDARD"
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = aws_iam_user.dev.arn
+  type          = "STANDARD"
 }
 
 # This tells Terraform to go find the official ARN from AWS directly
@@ -168,13 +168,13 @@ resource "aws_eks_access_policy_association" "dev_view_policy" {
 }
 #Outputs ---
 output "cluster_endpoint" { value = aws_eks_cluster.main.endpoint }
-output "cluster_name"     { value = aws_eks_cluster.main.name }
-output "region"           { value = "us-east-1" }
-output "vpc_id"           { value = aws_vpc.main.id }
+output "cluster_name" { value = aws_eks_cluster.main.name }
+output "region" { value = "us-east-1" }
+output "vpc_id" { value = aws_vpc.main.id }
 output "assets_bucket_name" { value = "bedrock-assets-jasonmwome-2026-final" }
-output "dev_access_key"   { value = aws_iam_access_key.dev.id }
+output "dev_access_key" { value = aws_iam_access_key.dev.id }
 
-output "dev_secret_key" { 
+output "dev_secret_key" {
   value     = aws_iam_access_key.dev.secret
-  sensitive = true 
+  sensitive = true
 }

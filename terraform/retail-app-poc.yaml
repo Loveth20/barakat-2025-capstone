@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: retail-ui
+  namespace: retail-app
+  labels:
+    app: retail-store
+    Project: Bedrock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retail-ui
+  template:
+    metadata:
+      labels:
+        app: retail-ui
+    spec:
+      containers:
+      - name: ui
+        image: public.ecr.aws/nginx/nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-service
+  namespace: retail-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: retail-ui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
