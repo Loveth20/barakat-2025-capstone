@@ -22,8 +22,8 @@ resource "aws_lambda_function" "asset_processor" {
 
 # 3. Create the S3 Bucket Notification (Requirement 4.5)
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  # Using the bucket name string directly to avoid "undeclared resource" errors
-  bucket = "bedrock-assets-altsoe0250331"
+  # Change this to use the resource reference
+  bucket = aws_s3_bucket.assets.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.asset_processor.arn
@@ -32,8 +32,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
   depends_on = [aws_lambda_permission.allow_s3]
 }
-
-# 4. Give S3 permission to trigger the Lambda
+#4. Give S3 permission to trigger the Lambda
 resource "aws_lambda_permission" "allow_s3" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
