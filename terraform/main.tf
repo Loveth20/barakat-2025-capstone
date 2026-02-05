@@ -1,15 +1,16 @@
 terraform {
   # Section 4.1: Remote State Management
-  backend "s3" {
+backend "s3" {
     bucket         = "jasonmwome-terraform-state-2026"
     key            = "eks/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform-state-lock"
-    use_lockfile   = true  # This removes the warning
+    # Add this line to remove the warning
+    use_lockfile   = true 
     encrypt        = true
   }
 
-  required_providers {
+required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"

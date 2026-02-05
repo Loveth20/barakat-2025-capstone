@@ -18,7 +18,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # This creates the physical file Terraform's backend looks for first
+      # This creates the physical file the S3 Backend looks for first
       - name: Create AWS Credentials File
         run: |
           mkdir -p ~/.aws
