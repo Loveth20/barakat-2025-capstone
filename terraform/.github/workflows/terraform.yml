@@ -19,12 +19,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       # This creates the physical file the S3 Backend looks for first
-      - name: Create AWS Credentials File
+      - name: Terraform Init
         run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          terraform init \
+            -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -backend-config="region=us-east-1" \
+            -input=false
 
       - name: Terraform Init
         env:
