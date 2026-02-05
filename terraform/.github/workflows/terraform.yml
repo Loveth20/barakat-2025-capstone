@@ -2,44 +2,36 @@ name: "Project Bedrock CI/CD"
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
-permissions:
-  contents: read
-  pull-requests: write
+    branches: [ master ]
 
 jobs:
   terraform:
-    name: "Terraform Action"
     runs-on: ubuntu-latest
-    
     defaults:
       run:
         working-directory: ./terraform
-
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. This step "primes" the runner with AWS credentials BEFORE Terraform starts
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 2. Init now works because the backend "sees" the credentials from step 1
+      # This creates the physical file Terraform's backend looks for first
+      - name: Create AWS Credentials File
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+
       - name: Terraform Init
+        env:
+          AWS_REGION: us-east-1
         run: terraform init -input=false
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          AWS_REGION: us-east-1
         run: terraform apply -auto-approve -input=false

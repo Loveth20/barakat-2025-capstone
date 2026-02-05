@@ -5,6 +5,8 @@ terraform {
     key            = "eks/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform-state-lock"
+    use_lockfile   = true  # This removes the warning
+    encrypt        = true
   }
 
   required_providers {
