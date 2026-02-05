@@ -1,0 +1,37 @@
+{
+  "assets_bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "bedrock-assets-jasonmwome-2026-final"
+  },
+  "cluster_endpoint": {
+    "sensitive": false,
+    "type": "string",
+    "value": "https://E3DF8E3D043B3DE8AA8C3E4A5AB4CFF6.gr7.us-east-1.eks.amazonaws.com"
+  },
+  "cluster_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "project-bedrock-cluster"
+  },
+  "dev_access_key": {
+    "sensitive": false,
+    "type": "string",
+    "value": "YOUR_ACCESS_KEY_HERE"
+}
+"dev_secret_key": {
+    "sensitive": true,
+    "type": "string",
+    "value": "YOUR_SECRET_KEY_HERE"
+}
+"region": {
+    "sensitive": false,
+    "type": "string",
+    "value": "us-east-1"
+  },
+  "vpc_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vpc-0ffa5fa69bcf7d969"
+  }
+}
