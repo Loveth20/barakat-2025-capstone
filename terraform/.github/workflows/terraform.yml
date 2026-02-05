@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. This step properly sets up the AWS environment for all following steps
+      # 1. This step "primes" the runner with AWS credentials BEFORE Terraform starts
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 2. Passing secrets directly to init fixes the "No valid credential sources" error
+      # 2. Init now works because the backend "sees" the credentials from step 1
       - name: Terraform Init
         run: terraform init -input=false
 
