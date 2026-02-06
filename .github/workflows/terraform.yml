@@ -2,21 +2,18 @@ name: "Project Bedrock CI/CD"
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
-permissions:
-  contents: read
-  pull-requests: write
+    branches: [ master ]
 
 jobs:
   terraform:
-    name: "Terraform Action"
     runs-on: ubuntu-latest
     
+    # Setting these at the JOB level is more reliable for S3 backends
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+
     defaults:
       run:
         working-directory: ./terraform
@@ -29,16 +26,8 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
-        run: terraform init
+        # Using -reconfigure forces it to ignore old, broken settings
+        run: terraform init -reconfigure -input=false
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
         run: terraform apply -auto-approve -input=false

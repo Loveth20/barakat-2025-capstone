@@ -25,9 +25,9 @@ jobs:
             -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -backend-config="region=us-east-1" \
+            -reconfigure \
             -input=false
-
-      - name: Terraform Init
+- name: Terraform Init
         env:
           AWS_REGION: us-east-1
         run: terraform init -input=false

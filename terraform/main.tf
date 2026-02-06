@@ -4,7 +4,7 @@ backend "s3" {
     bucket         = "jasonmwome-terraform-state-2026"
     key            = "eks/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-state-lock"
+    #dynamodb_table = "terraform-state-lock"
     # Add this line to remove the warning
     use_lockfile   = true 
     encrypt        = true
