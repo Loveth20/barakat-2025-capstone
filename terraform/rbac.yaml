@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapUsers: |
+    - userarn: arn:aws:iam::864443358235:user/project-bedrock-developer
+      username: project-bedrock-developer
+      groups:
+        - eks-console-dashboard-full-access-group
+        - system:masters # This gives full view/admin for the exam; change to 'view' for production
