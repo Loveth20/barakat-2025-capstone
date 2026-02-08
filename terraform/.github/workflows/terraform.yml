@@ -2,7 +2,7 @@ name: "Project Bedrock CI/CD"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main]
 
 jobs:
   terraform:
