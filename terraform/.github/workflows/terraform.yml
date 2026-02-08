@@ -7,12 +7,13 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    # Move environment variables here so ALL steps can see them
+    
+    # These variables are now globally available to all steps in this job
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: us-east-1
-    
+
     defaults:
       run:
         working-directory: ./terraform
@@ -25,7 +26,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        # Simplified: AWS environment variables handle the login automatically
         run: terraform init -input=false
 
       - name: Terraform Apply
