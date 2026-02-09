@@ -16,18 +16,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify Secrets Presence
+      - name: Hard Secret Check
         shell: bash
         run: |
-          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
-            echo "❌ ERROR: AWS_ACCESS_KEY_ID is missing from GitHub Secrets"
-            exit 1
-          fi
-          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
-            echo "❌ ERROR: AWS_SECRET_ACCESS_KEY is missing from GitHub Secrets"
-            exit 1
-          fi
-          echo "✅ Both secrets found. Proceeding..."
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then echo "❌ ID MISSING"; exit 1; fi
+          if [ -z "${{ secrets.AWS_SECRET_KEY_NEW }}" ]; then echo "❌ NEW SECRET KEY MISSING"; exit 1; fi
+          echo "✅ Secrets recognized!"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -37,22 +31,22 @@ jobs:
       - name: Terraform Init
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
         run: |
           terraform init \
             -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -backend-config="secret_key=${{ secrets.AWS_SECRET_KEY_NEW }}" \
             -backend-config="region=us-east-1" \
             -input=false
 
       - name: Terraform Plan
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
         run: terraform plan -input=false
 
       - name: Terraform Apply
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
         run: terraform apply -auto-approve -input=false
