@@ -8,12 +8,6 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     
-    # Global environment variables for the provider and general AWS usage
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: us-east-1
-
     defaults:
       run:
         working-directory: ./terraform
@@ -22,13 +16,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Verify Secrets Presence
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ ERROR: AWS_ACCESS_KEY_ID is missing from GitHub Secrets"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ ERROR: AWS_SECRET_ACCESS_KEY is missing from GitHub Secrets"
+            exit 1
+          fi
+          echo "✅ Both secrets found. Proceeding..."
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
       - name: Terraform Init
-        # Force-feeding secrets directly to the S3 backend
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init \
             -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
@@ -37,7 +46,13 @@ jobs:
             -input=false
 
       - name: Terraform Plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: terraform plan -input=false
 
       - name: Terraform Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: terraform apply -auto-approve -input=false
