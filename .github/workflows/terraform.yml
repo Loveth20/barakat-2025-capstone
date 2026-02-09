@@ -3,12 +3,15 @@ name: "Project Bedrock CI/CD"
 on:
   push:
     branches: [ master, main ]
-
+workflow_dispatch: # Allows you to click "Run Workflow" manually
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    
-    defaults:
+        # This ensures the runner has permission to read the secrets
+    permissions:
+      contents: read
+      id-token: write
+  defaults:
       run:
         working-directory: ./terraform
 
