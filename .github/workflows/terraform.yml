@@ -12,6 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # THIS IS THE NEW PART: The official way to log into AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_NEW }}
+          aws-region: us-east-1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -19,27 +27,12 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
-        env:
-          KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
-        run: |
-          terraform init \
-            -backend-config="access_key=$KEY_ID" \
-            -backend-config="secret_key=$ACCESS_KEY" \
-            -backend-config="region=us-east-1"
+        run: terraform init -input=false
 
       - name: Terraform Plan
         working-directory: ./terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
-          AWS_REGION: us-east-1
-        run: terraform plan
+        run: terraform plan -input=false
 
       - name: Terraform Apply
         working-directory: ./terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
-          AWS_REGION: us-east-1
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
