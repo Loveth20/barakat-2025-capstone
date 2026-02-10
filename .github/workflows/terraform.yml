@@ -8,22 +8,29 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    # We define them HERE so they are available to EVERY step automatically
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
+      AWS_DEFAULT_REGION: us-east-1
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      # THIS IS THE NEW PART: The official way to log into AWS
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_NEW }}
-          aws-region: us-east-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
+
+      - name: Verify Environment (Safe Check)
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "❌ THE SECRET AWS_KEY IS EMPTY IN GITHUB SETTINGS"
+            exit 1
+          else
+            echo "✅ Secret detected. Proceeding..."
+          fi
 
       - name: Terraform Init
         working-directory: ./terraform
