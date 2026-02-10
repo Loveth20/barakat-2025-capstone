@@ -19,12 +19,15 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
+        env:
+          KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY_NEW }}
         run: |
           terraform init \
-            -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -backend-config="secret_key=${{ secrets.AWS_SECRET_KEY_NEW }}" \
+            -backend-config="access_key=$KEY_ID" \
+            -backend-config="secret_key=$ACCESS_KEY" \
             -backend-config="region=us-east-1"
-        
+
       - name: Terraform Plan
         working-directory: ./terraform
         env:
