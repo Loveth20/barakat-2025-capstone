@@ -20,12 +20,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Hard Secret Check
-        shell: bash
-        run: |
-          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then echo "❌ ID MISSING"; exit 1; fi
-          if [ -z "${{ secrets.AWS_SECRET_KEY_NEW }}" ]; then echo "❌ NEW SECRET KEY MISSING"; exit 1; fi
-          echo "✅ Secrets recognized!"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
