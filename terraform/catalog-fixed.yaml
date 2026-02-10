@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "5"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"catalog","namespace":"retail-app"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"catalog"}},"template":{"metadata":{"labels":{"app":"catalog"}},"spec":{"containers":[{"image":"public.ecr.aws/aws-containers/retail-store-sample-catalog:latest","name":"catalog","ports":[{"containerPort":8080}]}]}}}}
+  creationTimestamp: "2026-02-08T14:52:30Z"
+  generation: 5
+  name: catalog
+  namespace: retail-app
+  resourceVersion: "790356"
+  uid: 506918a1-ba83-4032-ba5a-e6e9ffb5fcd0
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: catalog
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-02-10T01:30:54-08:00"
+      creationTimestamp: null
+      labels:
+        app: catalog
+    spec:
+      containers:
+      - env:
+        - name: DB_USER
+          value: root
+        image: public.ecr.aws/aws-containers/retail-store-sample-catalog:latest
+        imagePullPolicy: Always
+        name: catalog
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-02-08T14:52:30Z"
+    lastUpdateTime: "2026-02-10T09:41:12Z"
+    message: ReplicaSet "catalog-7ddb45ff97" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2026-02-10T09:48:38Z"
+    lastUpdateTime: "2026-02-10T09:48:38Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 5
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

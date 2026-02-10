@@ -1,44 +1,41 @@
-resource "aws_iam_role" "eks_nodes" {
-  name = "bedrock-node-group-role"
+# Create the IAM User
+resource "aws_iam_user" "dev_viewer" {
+  name = "bedrock-dev-view"
+  tags = { Project = "Bedrock" }
+}
 
-  assume_role_policy = jsonencode({
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
+# Attach ReadOnlyAccess (AWS Managed Policy)
+resource "aws_iam_user_policy_attachment" "read_only" {
+  user       = aws_iam_user.dev_viewer.name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
+resource "aws_iam_user_policy" "dev_s3_upload" {
+  name = "AllowS3Upload"
+  user = aws_iam_user.dev_viewer.name
+
+  policy = jsonencode({
     Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["s3:PutObject"]
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::bedrock-assets-altsoe0250331/*"
+      }
+    ]
   })
 }
-
-# Attach the 3 required policies for nodes to work
-resource "aws_iam_role_policy_attachment" "amazon_eks_worker_node_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_nodes.name
+#Create Access Keys (Required for Deliverables)
+resource "aws_iam_access_key" "dev_viewer" {
+  user = aws_iam_user.dev_viewer.name
 }
 
-resource "aws_iam_role_policy_attachment" "amazon_eks_cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_nodes.name
+# Output the keys (Keep these safe for your submission!)
+output "dev_viewer_access_key" {
+  value = aws_iam_access_key.dev_viewer.id
 }
 
-resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_only" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_nodes.name
-}
-resource "aws_iam_role" "lambda_role" {
-  name = "bedrock_lambda_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "lambda.amazonaws.com"
-      }
-    }]
-  })
+output "dev_viewer_secret_key" {
+  value     = aws_iam_access_key.dev_viewer.secret
+  sensitive = true
 }

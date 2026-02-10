@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "3"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"Project":"Bedrock","app":"retail-store"},"name":"retail-ui","namespace":"retail-app"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"retail-ui"}},"template":{"metadata":{"labels":{"app":"retail-ui"}},"spec":{"containers":[{"image":"public.ecr.aws/nginx/nginx:latest","name":"ui","ports":[{"containerPort":80}]}]}}}}
+  creationTimestamp: "2026-02-08T13:09:10Z"
+  generation: 3
+  labels:
+    Project: Bedrock
+    app: retail-store
+  name: retail-ui
+  namespace: retail-app
+  resourceVersion: "792160"
+  uid: f831c9d9-70d2-4342-9406-d6f8bb3aa0ba
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: retail-ui
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: retail-ui
+    spec:
+      containers:
+      - env:
+        - name: CATALOG_ENDPOINT
+          value: http://catalog:80
+        image: public.ecr.aws/aws-containers/retail-store-sample-ui:0.4.0
+        imagePullPolicy: Always
+        name: ui
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-02-10T07:42:17Z"
+    lastUpdateTime: "2026-02-10T07:42:17Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-02-08T13:09:10Z"
+    lastUpdateTime: "2026-02-10T09:59:10Z"
+    message: ReplicaSet "retail-ui-5c4f9bc9d7" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 3
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

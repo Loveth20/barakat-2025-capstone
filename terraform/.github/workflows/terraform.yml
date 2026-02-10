@@ -2,14 +2,13 @@ name: "Project Bedrock CI/CD"
 
 on:
   push:
-    branches: [ master, main]
+    branches: [ master, main ]
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    
-    # These variables are now globally available to all steps in this job
     env:
+      # These must be named exactly like this
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: us-east-1
@@ -24,9 +23,19 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false # This prevents the action from masking errors
 
       - name: Terraform Init
-        run: terraform init -input=false
+        run: |
+          terraform init \
+            -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            -backend-config="region=us-east-1"
+        # We explicitly pass them here to force the S3 backend to see them
+
+      - name: Terraform Plan
+        run: terraform plan -input=false
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
