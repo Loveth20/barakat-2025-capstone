@@ -1,5 +1,5 @@
 terraform {
-  backend "s3" {
+backend "s3" {
     bucket         = "bedrock-terraform-state-altsoe0250331"
     key            = "eks/terraform.tfstate"
     region         = "us-east-1"
