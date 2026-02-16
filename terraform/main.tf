@@ -1,10 +1,4 @@
 terraform {
-backend "s3" {
-    bucket         = "bedrock-terraform-state-altsoe0250331"
-    key            = "eks/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -17,100 +11,52 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Keep ONLY the VPC and Subnets here if they aren't in another file
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags = { Name = "bedrock-vpc" }
+# --- VPC CONFIGURATION ---
+# This creates the network, fixes the "blackhole" route issue by using IGW,
+# and ensures subnets automatically assign public IPs.
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = "bedrock-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b"]
+  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+
+  # --- CRITICAL FIXES ---
+  enable_nat_gateway     = false # Connects directly to Internet Gateway
+  single_nat_gateway     = false
+  map_public_ip_on_launch = true # Fixes Ec2SubnetInvalidConfiguration error
 }
 
-resource "aws_subnet" "subnet_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
-  map_public_ip_on_launch = true
-}
+# --- EKS CLUSTER & NODE GROUP CONFIGURATION ---
+# This creates the cluster, manages the IAM roles, and sets up the worker nodes.
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
 
-resource "aws_subnet" "subnet_b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
-  map_public_ip_on_launch = true
-}
+  cluster_name    = "bedrock-eks-cluster"
+  cluster_version = "1.31"
 
-resource "aws_internet_gateway" "main" { vpc_id = aws_vpc.main.id }
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnets
 
-resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.main.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
+  # THIS LINE IS ALL YOU NEED
+  enable_cluster_creator_admin_permissions = true
+
+  # Remove the "admin" entry from here to stop the conflict
+  access_entries = {} 
+
+  cluster_endpoint_public_access = true
+
+  eks_managed_node_groups = {
+    main = {
+      instance_types = ["t3.medium"]
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
+    }
   }
 }
 
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.subnet_a.id
-  route_table_id = aws_route_table.main.id
-}
-
-resource "aws_route_table_association" "b" {
-  subnet_id      = aws_subnet.subnet_b.id
-  route_table_id = aws_route_table.main.id
-}
-# --- IAM Role for the Cluster ---
-resource "aws_iam_role" "eks_cluster" {
-  name = "bedrock-eks-cluster-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = { 
-        Service = [
-          "eks.amazonaws.com",
-          "lambda.amazonaws.com" # <--- Add this line!
-        ] 
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster.name
-}
-
-# --- EKS Node Group ---
-#resource "aws_eks_node_group" "main" {
-  # Update this line to point to the module output
- # cluster_name    = module.eks.cluster_name 
-  
-  #node_group_name = "main-node-group"
-  #node_role_arn = aws_iam_role.eks_nodes.arn
-  #subnet_ids      = [aws_subnet.subnet_a.id, aws_subnet.subnet_b.id]
-
-  #scaling_config {
-    #desired_size = 2
-    #max_size     = 3
-    #min_size     = 1
- # }
-
-  #instance_types = ["t3.medium"]
-#}
-# --- The EKS Cluster ---
-#resource "aws_eks_cluster" "main" {
- # name     = "project-bedrock-cluster" # This MUST match the name in AWS
-  #role_arn = aws_iam_role.eks_cluster.arn
-  #enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-
-  #vpc_config {
-   # subnet_ids = [aws_subnet.subnet_a.id, aws_subnet.subnet_b.id]
-  #}
-
-#  lifecycle {
- #   ignore_changes = [
-  #    access_config[0].bootstrap_cluster_creator_admin_permissions,
-   # ]
-  #}
-#}

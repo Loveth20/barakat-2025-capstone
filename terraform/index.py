@@ -1,11 +1,9 @@
 import json
+import boto3
 
-def lambda_handler(event, context):
-    for record in event['Records']:
-        bucket = record['s3']['bucket']['name']
-        key = record['s3']['object']['key']
-        print(f"Image received: {key} from bucket: {bucket}")
+def handler(event, context):
+    print("Project Bedrock Asset Processor triggered!")
     return {
         'statusCode': 200,
-        'body': json.dumps('Success')
+        'body': json.dumps('Asset processed successfully for ID: 025/0331')
     }
