@@ -24,12 +24,15 @@ module "vpc" {
   azs             = ["us-east-1a", "us-east-1b"]
   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
 
-  # --- CRITICAL FIXES ---
-  enable_nat_gateway     = false # Connects directly to Internet Gateway
+  enable_nat_gateway     = false 
   single_nat_gateway     = false
-  map_public_ip_on_launch = true # Fixes Ec2SubnetInvalidConfiguration error
-}
+  map_public_ip_on_launch = true 
 
+  tags = {
+    Project   = "barakat-2025-capstone"
+    StudentID = "ALT/SOE/025/0331"
+  }
+}
 # --- EKS CLUSTER & NODE GROUP CONFIGURATION ---
 # This creates the cluster, manages the IAM roles, and sets up the worker nodes.
 module "eks" {
