@@ -1,0 +1,50 @@
+{
+    "nodegroup": {
+        "nodegroupName": "main-node-group",
+        "nodegroupArn": "arn:aws:eks:us-east-1:597088021675:nodegroup/bedrock-eks-cluster/main-node-group/dcce311c-8eca-9a65-f3a7-933b0da8ac56",
+        "clusterName": "bedrock-eks-cluster",
+        "version": "1.31",
+        "releaseVersion": "1.31.14-20260209",
+        "createdAt": "2026-02-15T08:53:57.046000-08:00",
+        "modifiedAt": "2026-02-15T09:32:36.304000-08:00",
+        "status": "DELETING",
+        "capacityType": "ON_DEMAND",
+        "scalingConfig": {
+            "minSize": 1,
+            "maxSize": 3,
+            "desiredSize": 2
+        },
+        "instanceTypes": [
+            "t3.medium"
+        ],
+        "subnets": [
+            "subnet-020ba21ef00096337",
+            "subnet-0c190bab00a5a57dc"
+        ],
+        "amiType": "AL2023_x86_64_STANDARD",
+        "nodeRole": "arn:aws:iam::597088021675:role/project-bedrock-node-role",
+        "resources": {
+            "autoScalingGroups": [
+                {
+                    "name": "eks-main-node-group-dcce311c-8eca-9a65-f3a7-933b0da8ac56"
+                }
+            ]
+        },
+        "diskSize": 20,
+        "health": {
+            "issues": [
+                {
+                    "code": "NodeCreationFailure",
+                    "message": "Instances failed to join the kubernetes cluster",
+                    "resourceIds": [
+                        "i-0178c812d9cb6ad03"
+                    ]
+                }
+            ]
+        },
+        "updateConfig": {
+            "maxUnavailable": 1
+        },
+        "tags": {}
+    }
+}
